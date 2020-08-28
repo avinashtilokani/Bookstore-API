@@ -63,6 +63,8 @@ namespace Bookstore_API
             });
 
             services.AddSingleton<ILoggerService, LoggerService>();
+            services.AddScoped<IAuthorRepository, AuthorRepository>();
+            //services.AddTransient
 
             services.AddControllers();
         }
