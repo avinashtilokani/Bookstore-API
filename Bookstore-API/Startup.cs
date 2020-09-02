@@ -64,6 +64,7 @@ namespace Bookstore_API
 
             services.AddSingleton<ILoggerService, LoggerService>();
             services.AddScoped<IAuthorRepository, AuthorRepository>();
+            services.AddScoped<IBookRepository, BookRepository>();
             //services.AddTransient
 
             services.AddControllers();
@@ -90,7 +91,7 @@ namespace Bookstore_API
                 c.RoutePrefix = "";
             });
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             //app.UseStaticFiles();
 
             app.UseCors("CorsPolicy");
