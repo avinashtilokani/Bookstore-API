@@ -86,5 +86,19 @@
             <param name="id"></param>
             <returns></returns>
         </member>
+        <member name="M:Bookstore_API.Controllers.UsersController.Login(Bookstore_API.DTOs.UserDTO)">
+            <summary>
+            User login endpoint
+            </summary>
+            <param name="userDTO"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Bookstore_API.Controllers.UsersController.Register(Bookstore_API.DTOs.UserDTO)">
+            <summary>
+            User registration endpoint
+            </summary>
+            <param name="userDTO"></param>
+            <returns></returns>
+        </member>
     </members>
 </doc>

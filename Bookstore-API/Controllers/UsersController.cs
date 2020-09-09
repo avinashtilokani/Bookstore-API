@@ -37,14 +37,21 @@ namespace Bookstore_API.Controllers
             _config = config;
         }
 
+
+        /// <summary>
+        /// User login endpoint
+        /// </summary>
+        /// <param name="userDTO"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
+        [Route("login")]
         public async Task<IActionResult> Login([FromBody] UserDTO userDTO)
         {
             var location = GetControllerActionNames();
             try
             {
-                var username = userDTO.Username;
+                var username = userDTO.EmailAddress;
                 var password = userDTO.Password;
 
                 _logger.LogInfo($"Login attempted from user {username}");
@@ -54,7 +61,7 @@ namespace Bookstore_API.Controllers
                 {
                     _logger.LogInfo($"{location}: {username} successfully authenticated");
                     var user = await _userManager.FindByNameAsync(username);
-                    var tokenString = GenerateJSONWebToken(user);
+                    var tokenString = await GenerateJSONWebToken(user);
                     return Ok(new { token = tokenString});
                 }
 
@@ -66,6 +73,43 @@ namespace Bookstore_API.Controllers
                 return internalError($"{location}: {e.Message}-{e.InnerException}");
             }
             
+        }
+
+        /// <summary>
+        /// User registration endpoint
+        /// </summary>
+        /// <param name="userDTO"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("register")]
+        public async Task<IActionResult> Register([FromBody]UserDTO userDTO)
+        {
+            var location = GetControllerActionNames();
+
+            try
+            {
+                var username = userDTO.EmailAddress;
+                var password = userDTO.Password;
+                _logger.LogInfo($"User registration attempted from user {username}");
+                var user = new IdentityUser { Email = username, UserName = username };
+                var result = await _userManager.CreateAsync(user, password);
+
+                if (!result.Succeeded)
+                {
+                    foreach(var error in result.Errors)
+                    {
+                        _logger.LogError($"{location}: {error.Code} - {error.Description}");
+                    }
+                    return internalError($"{location}: Registration failed for {username}");
+                }
+
+                return Ok(new { result.Succeeded });
+            }
+            catch (Exception e)
+            {
+                return internalError($"{location}: {e.Message}-{e.InnerException}");
+            }
         }
 
         private async Task<string> GenerateJSONWebToken(IdentityUser user)

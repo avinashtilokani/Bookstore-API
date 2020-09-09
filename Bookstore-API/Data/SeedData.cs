@@ -22,7 +22,7 @@ namespace Bookstore_API.Data
             {
                 var user = new IdentityUser
                 {
-                    UserName = "admin",
+                    UserName = "admin@bookstore.com",
                     Email = "admin@bookstore.com"
                 };
 
@@ -37,7 +37,7 @@ namespace Bookstore_API.Data
             {
                 var user = new IdentityUser
                 {
-                    UserName = "customer1",
+                    UserName = "customer1@test.com",
                     Email = "customer1@test.com"
                 };
 
@@ -52,7 +52,7 @@ namespace Bookstore_API.Data
             {
                 var user = new IdentityUser
                 {
-                    UserName = "customer2",
+                    UserName = "customer2@test.com",
                     Email = "customer2@test.com"
                 };
 
