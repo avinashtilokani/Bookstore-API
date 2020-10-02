@@ -2,6 +2,7 @@
 @attribute [Authorize(Roles = "Administrator")]
 @inject IAuthorRepository _authorRepo
 @inject NavigationManager _navManager
+@inject IToastService _toastService
 
 
 <h3 class="card-title">Sure to delete this Author?</h3>
@@ -89,6 +90,7 @@ else
 
         if (success)
         {
+            _toastService.ShowSuccess("Author Deleted");
             BackToList();
         }
         else

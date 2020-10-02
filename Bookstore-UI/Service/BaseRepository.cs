@@ -30,7 +30,10 @@ namespace Bookstore_UI.Service
             if (obj == null)
                 return false;
 
-            request.Content = new StringContent(JsonConvert.SerializeObject(obj));
+            request.Content = new StringContent(JsonConvert.SerializeObject(obj),Encoding.UTF8, "application/json");
+
+            //request.Headers.Add("Content-Type", "application/json");
+            
 
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Authorization =

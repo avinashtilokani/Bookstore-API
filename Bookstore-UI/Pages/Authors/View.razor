@@ -45,8 +45,9 @@ else
         }
     </div>
 }
-
-<button class="btn btn-primary" @onclick="BackToList">Back To List</button>
+<button class="btn btn-warning" @onclick="GoToEdit"><span class="oi oi-pencil"></span> Edit Author</button>
+| <button class="btn btn-danger" @onclick="GoToDelete"><span class="oi oi-circle-x"></span> Delete Author</button>
+| <button class="btn btn-primary" @onclick="BackToList"><span class="oi oi-media-step-backward"></span> Back To List</button>
 
 @code {
     [Parameter]
@@ -64,6 +65,16 @@ else
     private void BackToList()
     {
         _navManager.NavigateTo("/authors/");
+    }
+
+    private void GoToEdit()
+    {
+        _navManager.NavigateTo($"/authors/edit/{_author.Id}");
+    }
+
+    private void GoToDelete()
+    {
+        _navManager.NavigateTo($"/authors/delete/{_author.Id}");
     }
 
 }

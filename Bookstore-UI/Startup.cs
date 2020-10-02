@@ -16,6 +16,7 @@ using Blazored.LocalStorage;
 using System.IdentityModel.Tokens.Jwt;
 using Bookstore_UI.Providers;
 using Microsoft.AspNetCore.Components.Authorization;
+using Blazored.Toast;
 
 namespace Bookstore_UI
 {
@@ -35,6 +36,7 @@ namespace Bookstore_UI
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddBlazoredLocalStorage();
+            services.AddBlazoredToast();
             services.AddSingleton<WeatherForecastService>();
             services.AddHttpClient();
             services.AddScoped<APIAuthenticationStateProvider>();
@@ -43,6 +45,8 @@ namespace Bookstore_UI
             services.AddScoped<JwtSecurityTokenHandler>();
             services.AddTransient<IAuthenticationRepository, AuthenticationRepository>();
             services.AddTransient<IAuthorRepository, AuthorRepository>();
+            services.AddTransient<IBookRepository, BookRepository>();
+            services.AddTransient<IFileUpload, FileUpload>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

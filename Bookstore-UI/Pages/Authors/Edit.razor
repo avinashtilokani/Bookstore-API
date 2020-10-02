@@ -2,6 +2,7 @@
 @attribute [Authorize(Roles ="Administrator")]
 @inject IAuthorRepository _authorRepo
 @inject NavigationManager _navManager
+@inject IToastService _toastService
 
 
 <h3 class="card-title">Edit Author</h3>
@@ -70,6 +71,7 @@ else
 
         if (success)
         {
+            _toastService.ShowSuccess("Author Updated");
             BackToList();
         }
         else
