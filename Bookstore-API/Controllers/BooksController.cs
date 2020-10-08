@@ -8,6 +8,7 @@ using Bookstore_API.Data;
 using Bookstore_API.DTOs;
 using Bookstore_API.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.UI.V3.Pages.Internal.Account;
 using Microsoft.AspNetCore.Mvc;
@@ -25,15 +26,22 @@ namespace Bookstore_API.Controllers
         private readonly IBookRepository _bookRepository;
         private readonly ILoggerService _logger;
         private readonly IMapper _mapper;
+        private readonly IWebHostEnvironment _env;
 
         public BooksController(IBookRepository bookRepository,
             ILoggerService logger,
-            IMapper mapper)
+            IMapper mapper,
+            IWebHostEnvironment env
+            )
         {
             _bookRepository = bookRepository;
             _logger = logger;
             _mapper = mapper;
+            _env = env;
         }
+
+        private string GetImagePath(string fileName) 
+            => ($"{_env.ContentRootPath}\\uploads\\{fileName}");
 
         /// <summary>
         /// Get all books
@@ -50,6 +58,17 @@ namespace Bookstore_API.Controllers
                 _logger.LogInfo($"{location}: Atempted Call");
                 var books = await _bookRepository.FindAll();
                 var response = _mapper.Map<IList<BookDTO>>(books);
+                foreach(var item in response)
+                {
+                    if(!string.IsNullOrEmpty(item.Image))
+                    {
+                        if(System.IO.File.Exists(GetImagePath(item.Image)))
+                        {
+                            byte[] imageBytes = System.IO.File.ReadAllBytes(GetImagePath(item.Image));
+                            item.File = Convert.ToBase64String(imageBytes);
+                        }
+                    }
+                }
                 _logger.LogInfo($"{location}: Success");
                 return Ok(response);
             }
@@ -74,11 +93,20 @@ namespace Bookstore_API.Controllers
             {
                 _logger.LogInfo($"{location}: Atempted call for id: {id}");
                 var book = await _bookRepository.FindById(id);
-                var response = _mapper.Map<BookDTO>(book);
-                if (response == null)
+                if (book == null)
                 {
                     _logger.LogWarn($"{location}: Failed to retrieve record for id: {id}");
                     return NotFound();
+                }
+                var response = _mapper.Map<BookDTO>(book);
+                if(!string.IsNullOrEmpty(response.Image))
+                {
+                    var imgPath = GetImagePath(response.Image);
+                    if(System.IO.File.Exists(imgPath))
+                    {
+                        byte[] imgBytes = System.IO.File.ReadAllBytes(imgPath);
+                        response.File = Convert.ToBase64String(imgBytes);
+                    }
                 }
                 _logger.LogInfo($"{location}: Success in getting record with id: {id}");
                 
@@ -125,6 +153,12 @@ namespace Bookstore_API.Controllers
                 {
                     return internalError($"{location}: Creation failed");
                 }
+                if(!string.IsNullOrEmpty(bookDTO.File))
+                {
+                    var imgPath = GetImagePath(bookDTO.Image);
+                    byte[] imgBytes = Convert.FromBase64String(bookDTO.File);
+                    System.IO.File.WriteAllBytes(imgPath, imgBytes);
+                }
                 _logger.LogInfo($"{location}: Creation was successful");
                 _logger.LogInfo($"{location}: {book}");
                 return Created("Create", new { book });
@@ -163,14 +197,28 @@ namespace Bookstore_API.Controllers
                     _logger.LogWarn($"{location}: Failed to retrieve record with id: {id}");
                     return NotFound();
                 }
+                var oldImage = await _bookRepository.GetImageFileName(id);
                 var book = _mapper.Map<Book>(bookDTO);
                 var success = await _bookRepository.Update(book);
 
-                if(!success)
+                if (!success)
                 {
                     return internalError($"{location}: Update failed for record with id: {id}");
                 }
 
+                if (!bookDTO.Image.Equals(oldImage))
+                {
+                    if(System.IO.File.Exists(GetImagePath(oldImage)))
+                    {
+                        System.IO.File.Delete(GetImagePath(oldImage));
+                    }
+                }
+
+                if(!string.IsNullOrEmpty(bookDTO.File))
+                {
+                    byte[] imageBytes = Convert.FromBase64String(bookDTO.File);
+                    System.IO.File.WriteAllBytes(GetImagePath(bookDTO.Image), imageBytes);
+                }
                 _logger.LogInfo($"{location}: Update successful for record with id: {id}");
                 return NoContent();
             }

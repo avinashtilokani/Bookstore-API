@@ -58,5 +58,11 @@ namespace Bookstore_API.Services
             _dbContext.Books.Update(entity);
             return await Save();
         }
+
+        public async Task<string> GetImageFileName(int id)
+        {
+            var book = await _dbContext.Books.AsNoTracking().FirstOrDefaultAsync(q => q.Id == id);
+            return book.Image;
+        }
     }
 }

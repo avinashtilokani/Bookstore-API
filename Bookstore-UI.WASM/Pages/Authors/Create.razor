@@ -1,0 +1,68 @@
+﻿@page "/authors/create/"
+@attribute [Authorize(Roles = "Administrator")]
+@inject IAuthorRepository _authorRepo
+@inject NavigationManager _navManager
+@inject IToastService _toastService
+
+
+<h3 class="card-title">Create an Author</h3>
+
+@if (failed)
+{
+    <ErrorMessage Message="Something went wrong while creating an Author."></ErrorMessage>
+}
+
+
+<EditForm Model="_author" OnValidSubmit="CreateAuthor">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+
+    <div class="form-group">
+        <label for="firstName">First Name</label>
+        <InputText @bind-Value="_author.Firstname" class="form-control" id="firstName"></InputText>
+    </div>
+    <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <InputText @bind-Value="_author.Lastname" class="form-control" id="lastName"></InputText>
+    </div>
+    <div class="form-group">
+        <label for="bio">Biography</label>
+        <InputTextArea @bind-Value="_author.Bio" class="form-control" id="bio"></InputTextArea>
+    </div>
+    <button class="btn btn-primary" type="submit">
+        <span class="oi oi-pencil"></span>
+        Create Author
+    </button> |
+    <button class="btn btn-primary" @onclick="BackToList">
+        <span class="oi oi-media-skip-backward"></span>
+        Back To List
+    </button>
+</EditForm>
+
+
+@code {
+    private Author _author = new Author();
+
+    private bool failed = false;
+
+    private void BackToList()
+    {
+        _navManager.NavigateTo("/authors/");
+    }
+
+    private async Task CreateAuthor()
+    {
+        bool success = await _authorRepo.Create(Bookstore_UI.WASM.Static.Endpoints.AuthorsEndpoint, _author);
+
+        if (success)
+        {
+            _toastService.ShowSuccess("Author Created");
+            BackToList();
+        }
+        else
+        {
+            failed = true;
+        }
+    }
+
+}

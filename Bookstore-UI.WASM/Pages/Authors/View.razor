@@ -1,0 +1,80 @@
+﻿@page "/authors/view/{id}"
+
+@inject IAuthorRepository _authorRepo
+@inject NavigationManager _navManager
+<h3>View Author Details</h3>
+
+@if (_author == null)
+{
+    <LoadingMessage Message="Loading Author Details..."></LoadingMessage>
+}
+else
+{
+    <div class="col-md-4">
+        <h4>Author Details</h4>
+        <table class="table table-responsive">
+            <tr>
+                <td>First Name</td>
+                <td>@_author.Firstname</td>
+            </tr>
+            <tr>
+                <td>Last Name</td>
+                <td>@_author.Lastname</td>
+            </tr>
+            <tr>
+                <td>Biography</td>
+                <td>@_author.Bio</td>
+            </tr>
+        </table>
+        <br />
+        @if (_author.Books == null || _author.Books.Count < 1)
+        {
+            <LoadingMessage Message="No books for this Author"></LoadingMessage>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-header"><h4>Books</h4></div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var book in _author.Books)
+                    {
+                        <li class="list-group-item">@book.Title - @book.Price</li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+}
+<button class="btn btn-warning" @onclick="GoToEdit"><span class="oi oi-pencil"></span> Edit Author</button>
+| <button class="btn btn-danger" @onclick="GoToDelete"><span class="oi oi-circle-x"></span> Delete Author</button>
+| <button class="btn btn-primary" @onclick="BackToList"><span class="oi oi-media-step-backward"></span> Back To List</button>
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    private Author _author;
+
+    protected override async Task OnInitializedAsync()
+    {
+        int id = Convert.ToInt32(Id);
+
+        _author = await _authorRepo.Get(Bookstore_UI.WASM.Static.Endpoints.AuthorsEndpoint, id);
+    }
+
+    private void BackToList()
+    {
+        _navManager.NavigateTo("/authors/");
+    }
+
+    private void GoToEdit()
+    {
+        _navManager.NavigateTo($"/authors/edit/{_author.Id}");
+    }
+
+    private void GoToDelete()
+    {
+        _navManager.NavigateTo($"/authors/delete/{_author.Id}");
+    }
+
+}

@@ -1,0 +1,68 @@
+﻿@page "/authors/"
+
+@inject IAuthorRepository _authorRepo
+<h3>Index</h3>
+
+@if (authors == null)
+{
+    <LoadingMessage Message="Loading Authors..."></LoadingMessage>
+}
+else
+{
+    <AuthorizeView Roles="Administrator">
+        <a href="/authors/create" class="btn btn-primary">
+            <span class="oi oi-plus"></span>
+            Create New Author
+        </a>
+    </AuthorizeView>
+    <br/>
+
+    @if (authors.Count < 1)
+    {
+        <LoadingMessage Message="There are no Authors is data store"></LoadingMessage>
+    }
+    else
+    {
+        <table class="table table-responsive">
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var author in authors)
+                {
+                    <tr>
+                        <td>@author.Firstname</td>
+                        <td>@author.Lastname</td>
+                        <td>
+                            <AuthorizeView Roles="Administrator">
+                                <a class="btn btn-warning" href="/authors/edit/@author.Id">
+                                    <span class="oi oi-pencil"></span>
+                                </a>
+                                <a class="btn btn-danger" href="/authors/delete/@author.Id">
+                                    <span class="oi oi-delete"></span>
+                                </a>
+                            </AuthorizeView>
+                            <a class="btn btn-primary" href="/authors/view/@author.Id">
+                                <span class="oi oi-book"></span>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+@code {
+
+    private IList<Author> authors;
+
+    protected async override Task OnInitializedAsync()
+    {
+        authors = await _authorRepo.Get(Bookstore_UI.WASM.Static.Endpoints.AuthorsEndpoint);
+    }
+
+}
